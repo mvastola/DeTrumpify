@@ -19,8 +19,37 @@ if(!Array.prototype.random) Array.prototype.random = function () {
 
 
 DeTrumpify = window.DeTrumpify = {
+  cssSelectorWhitelist: [ 
+    'a', 
+    'span', 
+    'div', 
+    'p', 
+    'h1', 
+    'h2', 
+    'h3', 
+    'h4', 
+    'h5', 
+    'h6', 
+    'em', 
+    'strong',
+    'ul',
+    'li',
+    'nav'
+  ],
+  cssSelectorBlacklist: [
+    'img',
+    'script',
+    'style',
+    'head',
+    'body',
+    'html',
+    'title',
+    'meta',
+    'link'
+  ],
   domainCssSelectors: {},
   addDomainCssSelector: function(domain, cssSelector) {
+    var domain = domain.toLowerCase();
     if(!this.domainCssSelectors[domain]) this.domainCssSelectors[domain] = [];
     if(this.domainCssSelectors[domain].indexOf(cssSelector) != -1) return;
     this.domainCssSelectors[domain].push(cssSelector);
@@ -31,22 +60,12 @@ DeTrumpify = window.DeTrumpify = {
     }
   },
   getHostCssSelectors: function() {
-    var domain = document.location.hostname;
+    var domain = document.location.hostname.toLowerCase();
     if(!this.domainCssSelectors[domain]) {
       var domain = domain.replace(/[^\.]+\.[^\.]+$/, '$&');
     }
     return this.domainCssSelectors[domain] || [];
   },
-  matchers: [],
-  addMatcher: function(re) {
-    if(this.matchers.indexOf(re) != -1) return;
-    this.matchers.push(re);
-  },
-  addMatchers: function() {
-    for(var i = 0; i < arguments.length; i++) {
-      this.addMacher(arguments[i]);
-    }
-  }
   synonyms: [],
   synonym: function() {
     return this.synonyms.random();
@@ -59,8 +78,12 @@ DeTrumpify = window.DeTrumpify = {
     for(var i = 0; i < arguments.length; i++) {
       this.addSynonym(arguments[i]);
     }
-  }
+  },
+  matcher: null
 };
+
+DeTrumpify.addDomainCssSelectors('nytimes.com', 'a', '.title', '.story-body-text', '.story-content', '.caption-text', '.headline', '.story-heading', '.headline > a', '.story-heading > a', 'article > ul > li', '.collection > a', '.collection > b', '.summary', '.kicker', '.caption', '.caption a', 'ul > li a', '.story a', );
+// 
 
 DeTrumpify.addSynonyms(
   'Cheeto Jesus',
@@ -185,8 +208,10 @@ DeTrumpify.addSynonyms(
   'Unkempt Troll Doll Found Floating Facedown in a Tub of Rancid Beluga Caviar'
 );
 
+DeTrumpify.matcher = /((Mr\.?|Mister)\s)?(Don(ald|nie)?\s)?(J(\.|ohn)?\s)?(Trump\s)?/i;
+
 jQuery.noConflict(true)(document).ready(function($) {
   console.log(DeTrumpify.getHostCssSelectors());
-  console.log(DeTrumpify.synonyms);
-  console.log(DeTrumpify.matchers);
+  console.log(DeTrumpify.synonym());
+  console.log(DeTrumpify.matcher);
 });
